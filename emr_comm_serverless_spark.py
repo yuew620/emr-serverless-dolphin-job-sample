@@ -53,7 +53,7 @@ class Session:
             spark_conf=self.spark_conf
         )
 
-        self.initTemplateSQLFile()
+        #self.initTemplateSQLFile()
 
     # 提交 SQL 作业
     def submit_sql(self,jobname, sql):
