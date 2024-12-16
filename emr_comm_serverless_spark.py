@@ -4,8 +4,7 @@ from string import Template
 import time
 import boto3
 from datetime import datetime
-from pydolphinscheduler.tasks.python import Python
-from pydolphinscheduler.core.engine import TaskResult
+
 
 # this py is for submit job to emr on ec2 and emr serverless 
 
@@ -94,6 +93,21 @@ spark = (
 df = spark.sql("$query")
 df.show()
         ''')
+            
+    def initTemplateSQLString(self):
+       template = '''
+from pyspark.sql import SparkSession
+
+spark = (
+    SparkSession.builder.enableHiveSupport()
+    .appName("Python Spark SQL basic example")
+    .getOrCreate()
+)
+
+df = spark.sql("$query")
+df.show()
+    '''
+       return template
 
 # EMR Serverless 作业提交类
 class EmrServerlessSession:
@@ -127,8 +141,8 @@ class EmrServerlessSession:
         with open(
                 os.path.join(os.path.dirname(os.path.abspath(__file__)), "sql_template.py")
         ) as f:
-            query_file = Template(f.read()).substitute(query=sql.replace('"', '\\"'))
-
+            #query_file = Template(f.read()).substitute(query=sql.replace('"', '\\"'))
+            query_file = Template(self.initTemplateSQLString()).substitute(query=sql.replace('"', '\\"'))
             script_bucket = self.tempfile_s3_path.split('/')[2]
             script_key = '/'.join(self.tempfile_s3_path.split('/')[3:])
 
